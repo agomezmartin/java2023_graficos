@@ -13,6 +13,14 @@ import javax.swing.border.EmptyBorder;
 
 import model.Pedido;
 import service.PedidosService;
+import view.adapters.ListaPedidosModel;
+
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JLabel;
+import javax.swing.JScrollPane;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.ListSelectionEvent;
 
 public class JMenu extends JFrame {
 
@@ -39,7 +47,14 @@ public class JMenu extends JFrame {
 	 * Create the frame.
 	 */
 	public JMenu() {
-		JTextArea txtPedidos = new JTextArea();
+		JList<Pedido> lstPedidos = new JList<>();
+		lstPedidos.addListSelectionListener(new ListSelectionListener() {
+			public void valueChanged(ListSelectionEvent e) {
+				Pedido pedido=lstPedidos.getSelectedValue();
+				JOptionPane.showMessageDialog(JMenu.this, "Pedido seleccionado: "+pedido.getProducto()+
+						" - "+pedido.getFechaPedido()+" - "+pedido.getPrecio());
+			}
+		});
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 369);
 		contentPane = new JPanel();
@@ -69,20 +84,13 @@ public class JMenu extends JFrame {
 		JButton jbTodos = new JButton("Mostrar todos");
 		jbTodos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				txtPedidos.setText("");
-				var service=new PedidosService();
-				List<Pedido> pedidos=service.todos();
-				for(Pedido pedido:pedidos) {
-					txtPedidos.setText(txtPedidos.getText()+pedido.getProducto()+System.lineSeparator());
-				}
+				//instanciamos modelo de datos y se lo asignamos al JList
+				ListaPedidosModel model=new ListaPedidosModel();
+				lstPedidos.setModel(model);
 			}
 		});
-		jbTodos.setBounds(36, 166, 170, 23);
+		jbTodos.setBounds(36, 172, 170, 23);
 		contentPane.add(jbTodos);
-		
-		
-		txtPedidos.setBounds(241, 146, 87, 134);
-		contentPane.add(txtPedidos);
 		
 		JButton jbSalir = new JButton("Salir");
 		jbSalir.addActionListener(new ActionListener() {
@@ -92,5 +100,28 @@ public class JMenu extends JFrame {
 		});
 		jbSalir.setBounds(83, 278, 89, 23);
 		contentPane.add(jbSalir);
+		
+		JLabel lblNewLabel = new JLabel("Pedidos");
+		lblNewLabel.setBounds(291, 158, 46, 14);
+		contentPane.add(lblNewLabel);
+		
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBounds(260, 183, 129, 93);
+		contentPane.add(scrollPane);
+		
+		scrollPane.setViewportView(lstPedidos);
+		
+		JButton btnEliminar = new JButton("Eliminar");
+		btnEliminar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Pedido pedido=lstPedidos.getSelectedValue();
+				PedidosService service=new PedidosService();
+				service.eliminarPedido(pedido);
+				//para actualizar la lista
+				lstPedidos.setModel(new ListaPedidosModel());
+			}
+		});
+		btnEliminar.setBounds(281, 296, 89, 23);
+		contentPane.add(btnEliminar);
 	}
 }

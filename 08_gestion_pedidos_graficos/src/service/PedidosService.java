@@ -10,6 +10,7 @@ import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import model.Pedido;
@@ -75,5 +76,24 @@ public class PedidosService {
 	public List<Pedido> todos(){
 		return getPedidos() //Stream<Pedido>
 				.toList();
+	}
+	
+	public void eliminarPedido(Pedido p) {
+		//Recuperar todos los pedidos menos el que queremos eliminar
+		//transformar a objeto String
+		//generar una lista
+		//volcar la lista en el fichero
+		List<String> pedidos=getPedidos()//Stream<Pedido>
+		.filter(ped->!(ped.getProducto().equals(p.getProducto())&&
+					ped.getFechaPedido().equals(p.getFechaPedido())&&
+					ped.getPrecio()==p.getPrecio())) //Stream<Pedido>
+		.map(ped->ped.getProducto()+","+ped.getFechaPedido()+","+ped.getPrecio())//Stream<String>
+		.collect(Collectors.toList());
+		try {
+			Files.write(Path.of(dir), pedidos);
+		}catch(IOException ex) {
+			ex.printStackTrace();
+		}
+		
 	}
 }

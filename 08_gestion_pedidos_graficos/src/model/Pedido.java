@@ -15,5 +15,10 @@ public class Pedido {
 	private String producto;
 	private LocalDate fechaPedido;
 	private double precio;
+	@Override
+	public String toString() {
+		return producto;
+	}
+	
 	
 }
